@@ -101,8 +101,14 @@ const placeOrder = async (req,res) =>{
 
 // api for updating order status
 const updateStatus = async (req,res) => {
+    // Define allowed status values
+    const allowedStatuses = ["pending", "shipped", "delivered", "cancelled"];
     try {
-        await orderModel.findByIdAndUpdate(req.body.orderId,{status:req.body.status});
+        const { orderId, status } = req.body;
+        if (typeof status !== "string" || !allowedStatuses.includes(status)) {
+            return res.status(400).json({success:false,message:"Invalid status value"});
+        }
+        await orderModel.findByIdAndUpdate(orderId, {status});
         res.json({success:true,message:"Status Updated"})
     } catch (error) {
         console.log(error);
